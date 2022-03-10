@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from account.views import hello_world, oauth_token
+from account.views import hello_world, oauth_token, resources
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', hello_world),
     path('oauth/token', oauth_token),
+    path('oauth/resources', resources),
 ]

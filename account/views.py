@@ -1,5 +1,7 @@
 from http import client
+from os import access
 from secrets import choice
+from urllib import response
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -31,18 +33,16 @@ def oauth_token(request):
 
     response={
                 "error":"invalid_request",
-                "Error_description":"Username atau password salah!"
+                "Error_description":"ada kesalahan masbro!"
         }
 
     try:
-        user = User.objects.filter(username=username).first()
+        user = User.objects.get(username=username)
         if user.check_password(password) or user.password==password:
-           
-
             if 'access_token' in request.session:
-                return Response({'isLogin':True, 'username':request.session['username']})
+                return Response({'isLogin':True, 'username':request.session['username'], 'Token':request.session['access_token']})
 
-            user_info = f"{username}-{client_id}"
+            user_info = f"{username}-{client_id}-{client_secret}"
             access_token = generate_token(user_info)
             refresh_token = generate_token(user_info[::-1])
 
@@ -63,4 +63,38 @@ def oauth_token(request):
             return Response(response, status=401)
     except:
         return Response(response, status=401)
+
+@api_view(['POST'])
+def resources(request):
+    response = {
+        "error" : "invalid_token",
+        "error_description" : "Token Salah masbro"
+    }
+
+    try:
+        input_token = request.headers['authorization']
+        access_token = request.session['access_token']
+
+        if input_token.split(" ")[1] == access_token:
+            client_id = request.session['client_id']
+            user_id = request.session['username']
+            user = User.objects.get(username=user_id)
+            refresh_token = generate_token(f'{client_id}-{user_id}')
+
+            response={
+                "access_token" : access_token ,
+                "client_id" : client_id,
+                "user_id" : user_id,
+                "full_name" : user.full_name,
+                "npm" : user.npm,
+                "expires" : None,
+                "refresh_token" : refresh_token
+
+            }
+            return Response(response)
+        else:
+            return Response(response, status=401)
+    except:
+        return Response(response, status=401)
+
 
