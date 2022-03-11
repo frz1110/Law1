@@ -37,7 +37,7 @@ def oauth_token(request):
         }
 
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.get(username=username, client_id=client_id, client_secret=client_secret)
         if user.check_password(password) or user.password==password:
             if 'access_token' in request.session:
                 return Response({'isLogin':True, 'username':request.session['username'], 'Token':request.session['access_token']})
