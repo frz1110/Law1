@@ -26,17 +26,17 @@ def hello_world(request):
 
 @api_view(['POST'])
 def oauth_token(request):
-    username = request.data['username']
-    password = request.data['password']
-    client_id = request.data['client_id']
-    client_secret = request.data['client_secret']
-
     response={
                 "error":"invalid_request",
                 "Error_description":"ada kesalahan masbro!"
         }
 
     try:
+        username = request.data['username']
+        password = request.data['password']
+        client_id = request.data['client_id']
+        client_secret = request.data['client_secret']
+
         user = User.objects.get(username=username, client_id=client_id, client_secret=client_secret)
         if user.check_password(password) or user.password==password:
             if 'access_token' in request.session:
